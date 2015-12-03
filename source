@@ -1,0 +1,469 @@
+#include <iostream> //cout, cin
+#include <cmath>//use INT_MAX
+#include <stdlib.h>//use srand, rand
+#include <time.h>//use time to set random
+#include <iomanip> //use setw. setfill
+
+using namespace std;
+
+//creates structure called Card, which contains suit and rank variables
+struct Card
+{
+
+	int m_suit;
+	int m_rank;
+
+
+};
+
+int Menu (void);
+void Rules (void);
+void PlayGame (void);
+void PrintCard(Card hand);
+void ShuffleDeck(Card deck[52]);
+int getHandValue(Card myHand[]);
+void dealNewCard(Card hand[], Card *nextCardPointer, Card *handPointer, int& _handPosition);
+
+int main (void) 
+{
+	/*ascii style intro art to the representation
+
+	cout << setfill(' ')<< setw(15)<<" "<<"************************************************\n";
+	cout << setfill(' ')<<setw(15)<<" "<<"*  WELCOME TO MISS MAYHEM'S BLACKJACK CASINO   *\n";
+	cout<< setfill(' ')<<setw(15)<<" "<< "************************************************\n";
+	*/
+	Menu();
+
+	cin.get();
+	return 0;
+}
+
+/* This section contains the actual menu. It displays options for 
+entering the game and viewing the rules, and allows the player 
+to choose which option they would like.*/
+int Menu( void ) 
+{
+	bool exitOption = false; 
+	int startGame = 0;
+
+	while ( exitOption == false) //while loop will carry out menu until exitOption becomes true 
+	{
+		//ascii style intro art to the representation
+
+		cout << setfill(' ')<< setw(15)<<" "<<"************************************************\n";
+		cout << setfill(' ')<<setw(15)<<" "<<"*  WELCOME TO MISS MAYHEM'S BLACKJACK CASINO   *\n";
+		cout << setfill(' ')<<setw(15)<<" "<< "************************************************\n";
+		cout << "\n\nHowdy partner! You ready to try your luck?\n\n";
+		cout << "Press 1 to start the Game. \nPress 2 to view the Rules. \nPress 3 to Exit."<<endl;
+		cin >> startGame;
+
+		if ( startGame < 1 || startGame > 3 )
+		{
+			cin.clear(); ///removes error flag
+			cin.ignore(INT_MAX,'\n'); ///clears the invalid input stream
+			std::cout<<"\nInvalid input, please try again.\n\n"<<std::endl;
+		}
+		else
+		{
+			exitOption = true;
+		}
+
+	}//close while loop
+
+	switch (startGame)
+	{
+
+		case 1:
+
+			{
+				cout << "\n\nLet's get started!\n";
+				PlayGame(); 
+				
+			}
+			break;
+
+		case 2:
+
+			{
+				cout << "\n\nHere's the deal...\n";
+				Rules();
+				
+			}
+			break;
+
+		case 3:
+
+			{
+				cout << "\n\nSee ya next time!\n";
+				exit(0);
+				
+			}
+			break;
+
+		default:
+
+			{
+				startGame = 0;
+				cout << "\n\nSorry pal. Invalid choice!\n\n";
+				
+			} 
+			break;
+
+	} //closes switch
+
+	return startGame;
+} //closes function
+
+void Rules(void)
+{
+
+	system("CLS");
+	//char input variable to return to main menu and exitFlag bool for exiting the do while loop
+//	char exitChoice;
+	int menuChoice = 0;
+	bool exitFlag = false, ruleContinue = true;
+
+	//do while loop containing the rules of the game and exit choice which will return the 
+	//player to the main menu
+	do
+	{
+		while (ruleContinue == true)
+		{
+		
+		cout<< "The rules of Blackjack are simple and fun!" << endl
+			<< "1.Objectives\n2.Turns\n3.Card Values\n4.Additional Rules\n5.Main Menu\n\n"<<endl;
+		cin >> menuChoice;
+
+		switch (menuChoice)
+		{
+		case 1:
+
+			{   
+				system("CLS");
+				cout<< "OBJECTIVES:\nThe goal of the game is to beat the dealer"<<endl 
+					<< "by getting a higher sum from your cards. Careful! Don't"<<endl
+					<< "get a sum higher than 21, or you will bust, which" <<endl
+					<< "is Blackjack for lose! A score of 21 is an automatic win. Pewpew! \n\n"<<endl;
+			}
+			break;
+
+		case 2:
+
+			{
+				system("CLS");
+				cout<<"TURNS:\nThe game goes in turns. It begins with the dealer"<<endl
+					<<"and the player each being dealt two cards. The player's"<<endl
+					<<"cards are dealt face up, and the dealer gets one card face"<<endl
+					<<"up and one card face down (also known as the hole card). Next,"<<endl
+					<<"the player decides if they would like another card (hit) or"<<endl 
+					<<"if they would like keep their hand as it is (stand).\n\n"<<endl;
+			}
+			break;
+
+		case 3:
+
+			{
+				system("CLS");
+				cout<< "CARD VALUES:\nEach face card (King, Queen, Jack)" <<endl
+					<< "is worth 10 points. Aces are worth either 1 or 11, the choice"<<endl 
+					<< "is up to you! And number cards are worth their number in points."<<endl
+					<< "For example, a 7, an Ace and a Queen can equal 18 points"<<endl
+					<< "(a pretty good score) or it can be a bust score of 28!\n\n"<<endl;
+			}
+			break;
+
+		case 4:
+
+			{
+				system("CLS");
+				cout<<"ADDITIONAL RULES:\nHere in the Wild West we like to keep"<<endl
+					<<"it simple. If you're out of money, the game is over! There"<<endl
+					<<"is no upper limit to how much you can win. If you get"<<endl
+					<<"tired of your game, you can press 'X' at any time to exit"<<endl
+					<<"the game and return to the main menu. Good luck, cowpeople"<<endl
+					<<"of various gender!\n\n"<<endl;
+			}
+			break;
+
+		case 5:
+
+			{
+				system("CLS");
+				Menu();
+			}
+			break;
+
+		default:
+
+			{
+				system("CLS");
+				cout << "\n\nSorry pal. Invalid choice!\n\n";
+				cin.clear();
+				cin.ignore(INT_MAX, '/n');
+				
+			}
+		    break;
+		}
+
+		}
+
+	}
+	while (exitFlag == false);
+
+}
+
+void PlayGame(void)
+{
+	Card pHand[12] = {0};
+	Card dHand[12] = {0};
+	int playerMoney= 1000, bet=0, winnings=0;
+	bool moneyFlag = false;
+
+	//*********make deck: array of 52 card structures, initialized through 2 for loops (1 for suit and 1 for rank), assign card values*****************//
+
+	const int NUMBER_OF_CARDS= 52; //constant sets number of array members
+	int cardNum = 0; //variable to represent any given card as it is initialized per variable within the struct
+	Card deck[52]; //declaration of my Card array called 'deck', containing 52 members
+
+	for (int s = 0; s < 4; s++) //for loop iterating 4 times, one loop per suit
+	{
+		for (int r = 0; r < 13; r++)// for loop iterating 13 times, one loop per rank
+		{
+			deck[cardNum].m_rank = r; //array member cardNum member variable rank = r, which increases from 0 (ace) to 12 (King)
+			deck[cardNum].m_suit = s; //array member cardNum member variable suit = s, which increases from 0 (Hearts) to 3 (Clubs)
+			cardNum++; //increments cardNum by 1 each loop so it initializes different members of the array instead of [0] every time
+			//cout<< cardNum << " , " << r << " , " << s <<endl; //prints list of rank,suit to test for correctness
+		}
+	}
+
+	//*********************************//shuffle deck//************************************************************//	
+
+	///from Andrew Watson's lecture: used to randomize deck using computer clock time as seed for random function
+	srand(time(NULL));
+
+	for (int i = 0; i < 52; i++) //for loop with 52 iterations
+	{
+		Card tempCard; //variable called tempCard, represents one empty temporary struct instance
+		int temp = 0; //variable called temp, used to generate random position in deck
+
+		temp= rand()%52; //makes temp one of the 52 card places; i.e. generates a random number which is held in variable 'temp' 52 times
+
+		tempCard = deck[i]; //tempCard equals member of deck indicated by variable i(0-51)
+		deck[i] = deck[temp];//randomly generated position 'temp' is being copied to position 'i' of deck
+		deck[temp] = tempCard; //card instance tempCard is being copied into randomly generated position 'temp' of deck	
+	}
+
+	/*for (int i = 0; i < 52; i++)
+	{
+		cout<< deck[i].m_rank<< " , "<< deck[i].m_suit<<endl;//prints list of randomized rank,suit for error checking
+	}*/
+
+	//*****************************************//to do: place bets****************************************************//
+
+	/*if (player loses)
+	{
+		playerMoney = playerMoney - bet; //subtracts bet from playerMoney
+	}
+	else if (player wins)
+	{
+		winnings = bet*1.5; //calculates winnings based on bet amount
+		playerMoney = playerMoney + winnings; //calculates new playerMoney total by adding winnings 
+	}*/
+
+	cout<< "You have "<< playerMoney <<"."<<endl; //displays playerMoney (amount of money the player has to use)
+	cout<< "Please enter the amount you would like to bet."<<endl; //requests input of bet amount
+	cin>> bet; //get bet amount
+
+	//if player has run out of money output end of game message, clear screen and recall menu function
+	if (playerMoney <= 0)
+	{
+		moneyFlag = true;
+		cout<< "Sorry partner, looks like your well's run dry. \nThanks for playing!"<<endl;
+		system("CLS");
+		Menu();
+	}
+
+	//*******************************************to do: deal and display hand*********************************************//
+	
+	Card *nextCardPointer;
+	Card *playerHandPointer;
+	Card *dealerHandPointer;
+
+	playerHandPointer = &pHand[2];
+	dealerHandPointer = &dHand[2];
+	nextCardPointer = &deck[0];
+
+	for (int i = 0; i < 2; i++)
+	{
+		nextCardPointer = nextCardPointer + 1; //increments the deck member that the pointer is pointing to
+		pHand[i] = *nextCardPointer; //sets member of pHand = to nextCardPointer value by dereferencing 
+		PrintCard(pHand[i]);
+	}
+
+	for (int i = 0; i < 2; i++)
+	{
+		nextCardPointer = nextCardPointer + 1; //increments the deck member that the pointer is pointing to
+		dHand[i] = *nextCardPointer; //sets member of pHand = to nextCardPointer value by dereferencing 
+		if (i == 0) { PrintCard(dHand[i]); }
+		if (i == 1) { cout<< "Face down Card" <<endl; }
+	}
+	
+	if (getHandValue(dHand, handPosition) == 21)
+	{
+		cout<< "The dealer has 21!!"<<endl;
+		system("PAUSE");
+		system("CLS");
+		Menu();
+	}
+
+	if (getHandValue(pHand, handPosition) == 21)
+	{
+		cout<< "You have 21! Congratulations, you win!!"<<endl;
+		system("PAUSE");
+		system("CLS");
+		Menu();
+	}
+
+	//***********************************************to do: ask for input: hit or stand?******************************//
+	bool stand = false;
+	char choice;
+
+	while (!stand || getHandValue(pHand, handPosition) >= 21)
+	{
+		cout<<"You have less than 21. Would you like to hit <H> or stand <S>?"<<endl;
+		cin>> choice;
+	
+		switch (choice)
+				{
+				case 'H':
+				case 'h':
+
+					{
+						dealNewCard(pHand, nextCardPointer, playerHandPointer, handPosition);
+						cout<< getHandValue(pHand, handPosition); 
+					}
+					break;
+
+				case 'S':
+				case 's':
+					{
+						stand = true;
+					}
+					break;
+
+				default:
+					break;
+				}
+	
+		}
+
+	//to do: if hit: deal card, calculate new hand value, display bust if bust
+	
+		//to do: deal card to dealer, calculate new hand value, display bust if bust
+	
+		//to do: if no busts, repeat input, deal and calculate loop
+
+	//to do: if stand: calculate hand value
+		
+		//to do: calculate dealer hand value. if less than 17 hit dealer, recalculate dealer hand value 
+		
+		//to do: compare player hand value to dealer final hand value
+
+		//to do: declare winner, ask for input play again?
+
+
+	system("PAUSE");
+}
+
+void PrintCard(Card hand)
+{
+	//write rank
+	if (hand.m_rank == 0) cout<< "Ace of ";
+	if (hand.m_rank == 1) cout<< "Two of ";
+	if (hand.m_rank == 2) cout<< "Three of ";
+	if (hand.m_rank == 3) cout<< "Four of ";
+	if (hand.m_rank == 4) cout<< "Five of ";
+	if (hand.m_rank == 5) cout<< "Six of ";
+	if (hand.m_rank == 6) cout<< "Seven of ";
+	if (hand.m_rank == 7) cout<< "Eight of ";
+	if (hand.m_rank == 8) cout<< "Nine of ";
+	if (hand.m_rank == 9) cout<< "Ten of ";
+	if (hand.m_rank == 10) cout<< "Jack of ";
+	if (hand.m_rank == 11) cout<< "Queen of ";
+	if (hand.m_rank == 12) cout<< "King of ";
+
+	//write suit
+	if (hand.m_suit == 0) cout<< "Hearts"<<endl;
+	if (hand.m_suit == 1) cout<< "Diamonds"<<endl;
+	if (hand.m_suit == 2) cout<< "Spades"<<endl;
+	if (hand.m_suit == 3) cout<< "Clubs"<<endl;
+	
+}
+
+int getHandValue(Card myHand[])
+{
+	int value = 0;
+
+  for (int i = 0; i < 1; i++)
+  {
+
+		if (myHand[i].m_rank == 0) {value += 1;}
+		if (myHand[i].m_rank == 1) {value += 2;}
+		if (myHand[i].m_rank == 2) {value += 3;}
+		if (myHand[i].m_rank == 3) {value += 4;}
+		if (myHand[i].m_rank == 4) {value += 5;}
+		if (myHand[i].m_rank == 5) {value += 6;}
+		if (myHand[i].m_rank == 6) {value += 7;}
+		if (myHand[i].m_rank == 7) {value += 8;}
+		if (myHand[i].m_rank == 8) {value += 9;}
+		if (myHand[i].m_rank == 9) {value += 10;}
+		if (myHand[i].m_rank == 10) {value += 10;}
+		if (myHand[i].m_rank == 11) {value += 10;}
+		if (myHand[i].m_rank == 12) {value += 10;}
+		if (myHand[i].m_rank == 13) {value += 11;}
+  }
+
+	return value;
+}
+
+void dealNewCard(Card hand[], Card *nextCardPointer, Card *handPointer, int& _handPosition)
+{
+	_handPosition++;
+
+	hand[_handPosition] = *nextCardPointer;
+	handPointer = handPointer + 1;
+	nextCardPointer = nextCardPointer + 1;
+}
+
+void AceCase(Card drawnCard)
+{
+	int aceChoice= 0;
+
+	cout<< "You have drawn an ace! Press 1 to assign value of 1\n.Press 2 to assign value of 11."<<endl;
+	cin>> aceChoice;
+
+	switch (aceChoice)
+	{
+		case 1:
+
+			{
+				cout<<"You have assigned your ace a value of 1.";
+				drawnCard.m_rank = 0;
+			}
+
+			break;
+
+		case 2:
+
+			{
+				cout<<"You have assigned your ace a value of 11.";
+				drawnCard.m_rank = 13;
+
+			}
+			break;
+
+		default:
+			break;
+	}
+
+}
