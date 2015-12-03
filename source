@@ -22,7 +22,7 @@ void PlayGame (void);
 void PrintCard(Card hand);
 void ShuffleDeck(Card deck[52]);
 int getHandValue(Card myHand[]);
-void dealNewCard(Card hand[], Card *nextCardPointer, Card *handPointer, int& _handPosition);
+void dealNewCard(Card hand[], Card *nextCardPointer, Card *handPointer);
 
 int main (void) 
 {
@@ -293,6 +293,7 @@ void PlayGame(void)
 	dealerHandPointer = &dHand[2];
 	nextCardPointer = &deck[0];
 
+  cout<< "Your opening hand is:\n";
 	for (int i = 0; i < 2; i++)
 	{
 		nextCardPointer = nextCardPointer + 1; //increments the deck member that the pointer is pointing to
@@ -300,6 +301,7 @@ void PlayGame(void)
 		PrintCard(pHand[i]);
 	}
 
+  cout<<"\n\nDealer's opening hand is:\n";
 	for (int i = 0; i < 2; i++)
 	{
 		nextCardPointer = nextCardPointer + 1; //increments the deck member that the pointer is pointing to
@@ -308,7 +310,7 @@ void PlayGame(void)
 		if (i == 1) { cout<< "Face down Card" <<endl; }
 	}
 	
-	if (getHandValue(dHand, handPosition) == 21)
+	if (getHandValue(dHand) == 21)
 	{
 		cout<< "The dealer has 21!!"<<endl;
 		system("PAUSE");
@@ -316,7 +318,7 @@ void PlayGame(void)
 		Menu();
 	}
 
-	if (getHandValue(pHand, handPosition) == 21)
+	if (getHandValue(pHand) == 21)
 	{
 		cout<< "You have 21! Congratulations, you win!!"<<endl;
 		system("PAUSE");
@@ -328,7 +330,7 @@ void PlayGame(void)
 	bool stand = false;
 	char choice;
 
-	while (!stand || getHandValue(pHand, handPosition) >= 21)
+	while (!stand || getHandValue(pHand) >= 21)
 	{
 		cout<<"You have less than 21. Would you like to hit <H> or stand <S>?"<<endl;
 		cin>> choice;
@@ -339,8 +341,8 @@ void PlayGame(void)
 				case 'h':
 
 					{
-						dealNewCard(pHand, nextCardPointer, playerHandPointer, handPosition);
-						cout<< getHandValue(pHand, handPosition); 
+						dealNewCard(pHand, nextCardPointer, playerHandPointer);
+						cout<< getHandValue(pHand); 
 					}
 					break;
 
