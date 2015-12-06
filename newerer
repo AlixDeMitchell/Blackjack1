@@ -1,0 +1,667 @@
+#include <iostream> //std::cout, std::cin
+#include <cmath>//use INT_MAX
+#include <stdlib.h>//use srand, rand
+#include <time.h>//use time to set random
+#include <iomanip> //use setw. setfill
+
+
+//creates structure called Card, which contains suit and rank variables
+struct Card
+{
+
+  int m_suit; 
+  int m_rank; 
+  int m_value; 
+
+};
+
+int Menu ( void ); //Main Menu
+void Rules ( void ); //Rules Menu
+void PlayGame ( void ); //Game logic
+void PrintCard ( Card hand ); //Display card
+void ShuffleDeck ( Card deck[] ); //Shuffle deck
+int GetHandValue ( Card hand[] ); //Calculate Value of any Hand (player or dealer)
+int GetInput ( void ); //integer input error check
+char GetCharInput ( void ); //char input error check
+int GetBet ( int playerMoney ); //get bet input from player
+void SubtractBet ( int *playerMoney, int bet ); //adjust player's money in LOSS case
+void AddWinnings ( int *playerMoney, int bet ); //adjust player's money in WIN case
+//void Draw ( int *playerMoney, int bet ); //draw case
+bool ContinueRound ( bool exitRound ); //runs next round or exits to main menu
+
+
+int main ( void ) 
+{
+
+  Menu();
+
+  std::cin.get();
+  return 0;
+}
+
+/* This section contains the main menu. It displays options for 
+entering the game, exiting the program and viewing the rules, and allows the player 
+to choose which option they would like.*/
+int Menu ( void ) 
+{
+  int startGame = 0;
+
+  //ascii style intro art to the representation
+
+  std::cout << std::setfill(' ')<< std::setw(15)<<" "<<"************************************************\n";
+  std::cout << std::setfill(' ')<< std::setw(15)<<" "<<"*  WELCOME TO MISS MAYHEM'S BLACKJACK CASINO   *\n";
+  std::cout << std::setfill(' ')<< std::setw(15)<<" "<< "************************************************\n";
+  std::cout << "\n\nHowdy partner! You ready to try your luck?\n\n";
+  std::cout<<"\nSelect your choice and then press enter to go through the menu."<<std::endl;
+  std::cout << "\nPress 1 to start the Game. \nPress 2 to view the Rules. \nPress 3 to Exit.\n\n"<<std::endl;
+  startGame = GetInput();
+
+  switch (startGame) //switch statement for menu options
+  {
+
+  case 1: //starts game
+
+    {
+
+      std::cout << "\n\nLet's get started!\n";
+      PlayGame(); 
+
+    }
+    break;
+
+  case 2: //Enters rule menu
+
+    {
+
+      std::cout << "\n\nHere's the deal...\n";
+      Rules();
+
+    }
+    break;
+
+  case 3: //Exits program
+
+    {
+
+      std::cout << "\n\nSee ya next time!\n";
+      exit(0);
+
+    }
+    break;
+
+  default: //resets input
+
+    {
+
+      startGame = 0;
+      std::cout << "\n\nSorry pal. Invalid choice!\n\n";
+
+    } 
+    break;
+
+  } //closes switch
+
+  return startGame;
+} //closes function
+
+void Rules ( void )
+{
+
+  system("CLS");
+
+  int menuChoice = 0;
+  bool exitFlag = false, ruleContinue = true;
+
+  //do while loop containing the rules of the game and exit choice which will return the 
+  //player to the main menu
+  do
+  {
+    while (ruleContinue)
+    {
+
+      std::cout<< "The rules of Blackjack are simple and fun!" << std::endl;
+      std::cout<<"\nSelect your choice and then press enter to go through the rules."<<std::endl;
+      std::cout<< "1.Objectives\n2.Turns\n3.Card Values\n4.Additional Rules\n5.Main Menu\n\n"<<std::endl;
+
+      menuChoice = GetInput();
+
+      switch (menuChoice)
+      {
+      case 1:
+
+        {   
+
+          system("CLS");
+          std::cout<< "OBJECTIVES:\nThe goal of the game is to beat the dealer"<<std::endl 
+            << "by getting a higher sum from your hand of cards. Careful!"<<std::endl
+            << "Don't get a sum higher than 21, or you will bust, which" <<std::endl
+            << "is Blackjack for lose! A score of 21 is an automatic win."
+            << "If drawn in your opening hand, this is called a Natural.\nPewpew! \n\n"<<std::endl;
+
+        }
+        break;
+
+      case 2:
+
+        {
+
+          system("CLS");
+          std::cout<<"TURNS:\nThe game goes in turns. It begins with the dealer"<<std::endl
+            <<"and the player each being dealt two cards. The player's"<<std::endl
+            <<"cards are dealt face up, and the dealer gets one card face"<<std::endl
+            <<"up and one card face down (also known as the hole card). Next,"<<std::endl
+            <<"the player decides if they would like another card (hit) or"<<std::endl 
+            <<"if they would like keep their hand as it is (stick). Until"<<std::endl
+            <<"the player sticks or busts, the dealer doesn't get any more"<<std::endl
+            <<"cards. When the player sticks, it is the dealer's turn."<<std::endl;
+          std::cout<<"The dealer must hit on a hand with less than 17 points.\n\n"<<std::endl;
+           
+        }
+        break;
+
+      case 3:
+
+        {
+          system("CLS");
+          std::cout<< "CARD VALUES:\nEach face card (King, Queen, Jack)" <<std::endl
+            << "is worth 10 points. Aces are worth either 1 or 11, the choice"<<std::endl 
+            << "is up to you! And number cards are worth their number in points."<<std::endl
+            << "For example, a 7, an Ace and a Queen can equal 18 points"<<std::endl
+            << "(a pretty good score) or it can be a bust score of 28!\n\n"<<std::endl;
+          std::cout<<"If the dealer draws an ace, it will have a value of 11 unless"<<std::endl;
+          std::cout<<"it would bust the dealer. In that case, it is a one."<<std::endl;
+        }
+        break;
+
+      case 4:
+
+        {
+          system("CLS");
+          std::cout<<"ADDITIONAL RULES:\nHere in the Wild West we like to keep"<<std::endl
+            <<"it simple. If you're out of money, the game is over! There"<<std::endl
+            <<"is no upper limit to how much you can win. If you win, you"<< std::endl;
+          std::cout<<"get 1.5 times the amount of your bet added to your pot."<<std::endl;
+          std::cout<<"If you lose, your bet amount is subtracted from your pot."<<std::endl;
+          std::cout<<"If you get tired of your game, you can \npress 'X' at the end of a hand to exit"<<std::endl
+            <<"the game and return to the main menu. Good luck, cowpeople"<<std::endl
+            <<"of various gender!\n\n"<<std::endl;
+        }
+        break;
+
+      case 5:
+
+        {
+          system("CLS");
+          Menu();
+        }
+        break;
+
+      default:
+
+        {
+          system("CLS");
+          std::cout << "\n\nSorry pal. Invalid choice!\n\n";
+          std::cin.clear();
+          std::cin.ignore(INT_MAX, '/n');
+
+        }
+        break;
+      }
+
+    }
+
+  }
+  while (exitFlag == false);
+
+}
+
+void PlayGame ( void )
+{
+  bool exitRound = false; //when true, will return player to main menu
+  int playerMoney = 1000; //sets starting value to 1000
+
+  while ( !exitRound ) //runs the game while player does not want to exit and still has money
+  {
+
+    const int NUMBER_OF_CARDS= 52; //constant sets number of array members
+    Card deck[52] = {0}; //declaration of my Card array called 'deck', containing 52 members
+    Card pHand[12] = {0}; //declares player hand array
+    Card dHand[12] = {0}; //declares dealer hand array
+    Card *nextCardInDeck; //points to next Card in the deck array
+    nextCardInDeck = &deck[0];// pointer assigned to address of deck position 0
+    int pNextCard = 2; //int that indicates next card value in player hand array
+    int dNextCard = 2;//int that indicates next card value in dealer hand array
+    int	bet = 0; //bet initialization
+    int	cardNum = 0; //card position in deck array as it is initialized
+    char hitChoice; //choice of hit or stick, entered by player
+    bool endFlag = false; //if true, breaks while loop of hit/stick
+
+    //************************// Make Deck: array of 52 card structures, initialized through 2 for loops (1 for suit and 1 for rank), assign card values //*****************//
+
+
+    for ( int s = 0; s < 4; s++ ) //for loop iterating 4 times, one loop per suit
+    {
+      for ( int r = 0; r < 13; r++ )// for loop iterating 13 times, one loop per rank
+      {
+        deck[cardNum].m_rank = r; //array member cardNum member variable rank = r, which increases from 0 (ace) to 12 (King)
+        deck[cardNum].m_suit = s; //array member cardNum member variable suit = s, which increases from 0 (Hearts) to 3 (Clubs)
+
+        if ( r >0 && r < 9 ) // if rank between 1 and 8, value = rank + 1
+        {
+          deck[cardNum].m_value = r + 1;
+        }
+
+        else if ( r == 0 )// if rank = 0, ace default value is assigned 11
+        {
+          deck[cardNum].m_value = 11;
+        }
+
+        else// ranks 9, 10, 11, 12 value = 10
+        {
+          deck[cardNum].m_value = 10;
+        }
+
+        cardNum++; //increments cardNum by 1 each loop so it initializes different members of the array instead of [0] every time
+      }
+    }
+
+
+    //*********************************// shuffle deck //************************************************************//	
+
+    ///from Andrew Watson's lecture: used to randomize deck using computer clock time as seed for random function
+    srand( time( NULL ) );
+
+    for ( int i = 0; i < 52; i++ ) //for loop with 52 iterations
+    {
+
+      Card tempCard; //variable called tempCard, represents one empty temporary struct instance
+      int temp = 0; //variable called temp, used to generate random position in deck
+
+      temp= rand()%52; //makes temp one of the 52 card places; i.e. generates a random number which is held in variable 'temp' 52 times
+
+      tempCard = deck[i]; 
+      deck[i] = deck[temp];
+      deck[temp] = tempCard; 
+
+    }
+
+    //*****************************************// place bets //****************************************************//
+
+
+    bet = GetBet( playerMoney );
+
+
+    //*******************************************// deal and display opening hand //*********************************************//
+
+
+    std::cout<< "\n\nYour opening hand is:\n";
+    for ( int i = 0; i < 2; i++ )
+    {
+      int aceChoice;
+
+      pHand[i] = *nextCardInDeck;//sets member of pHand = to nextCardInDeck value by dereferencing 
+      std::cout<< "*";
+      PrintCard( pHand[i] );
+      nextCardInDeck++; //increments the deck member that the pointer is pointing to
+    }
+
+    std::cout<<"\n\nDealer's opening hand is:\n";
+    for ( int i = 0; i < 2; i++ )
+    {
+      dHand[i] = *nextCardInDeck; //sets member of dHand = to nextCardInDeck value by dereferencing 
+      std::cout<< "*";
+      if (i == 0) { std::cout<< "Hole Card" <<std::endl; }
+      if (i == 1) { PrintCard( dHand[i] ); }
+
+      nextCardInDeck++; //increments the deck member that the pointer is pointing to
+    }
+
+
+    if ( GetHandValue( dHand ) == 21 ) //if dealer has a Natural
+    {
+
+      std::cout<< "The dealer has a Natural 21!!\nPress <A><enter> to continue or press <X><enter> to return to the main menu."<<std::endl;
+      PrintCard( dHand[0] );
+      ContinueRound( exitRound );
+      SubtractBet( &playerMoney, bet );
+      endFlag = true;
+
+    }
+
+    if ( GetHandValue( pHand ) == 21 ) //if player has a Natural
+    {
+      std::cout<< "You have a Natural 21! Congratulations, you win!!\nPress <A><enter> to continue or press <X><enter> to return to the main menu."<<std::endl;
+      ContinueRound( exitRound );
+      AddWinnings( &playerMoney, bet );
+      endFlag = true;
+    }
+
+    //***********************************************// hit or stand? //*****************************************//
+
+
+
+    while ( !endFlag && GetHandValue( pHand ) <= 21 ) //while endFlag is false and player hand value is less than or equal to 21 this loop will run
+    {
+      std::cout<< "\n\nYou have "<< GetHandValue( pHand ) <<" points in your hand.\nDo you want to hit <H><enter> or stick <S><enter>?\n";
+      hitChoice = GetCharInput();
+
+      switch ( hitChoice )
+      {
+      case 'H': //player chooses to hit
+      case 'h':
+
+        {
+
+          pHand[pNextCard] = *nextCardInDeck; //the next card element in the player hand array = value of nextCardInDeck pointer
+          nextCardInDeck++; //incrementing which card is read from the deck array
+          std::cout<< "\n\nYou have drawn: ";
+          PrintCard( pHand[pNextCard] ); //prints card from player hand array
+
+          if ( pHand[pNextCard].m_rank == 0 ) //checks if dealt card is an ace, if yes enters aceChoice switch
+          {
+            int aceChoice= 0;
+
+            std::cout<< "You have drawn an ace! Select your choice then press enter. \n   Press 1 to assign value of 1.\n   Press 2 to assign value of 11."<<std::endl;
+            aceChoice = GetInput();
+
+            switch ( aceChoice )
+            {
+            case 1: //assigns card value of 1
+
+              {
+                std::cout<<"You have assigned your ace a value of 1."<<std::endl;
+                pHand[pNextCard].m_value = 1;
+              }
+
+              break;
+
+            case 2: //leaves card at default value of 11
+
+              {
+                std::cout<<"You have assigned your ace a value of 11."<<std::endl;
+
+              }
+
+              break;
+
+            default:
+              break;
+
+            }//closes switch
+          }//closes ace if check
+
+          pNextCard++; //increments index of player hand array
+
+          if ( GetHandValue( pHand ) == 21 ) //player has 21
+          {
+            std::cout<<"Your hand total: "<< GetHandValue(pHand);
+            std::cout<< "\n\nCongratulations! You win! Enjoy your fat pot of gold.\nPress <A><enter> to continue or press <X><enter> to return to the main menu."<<std::endl;
+            ContinueRound( exitRound ); //gets input for continue vs exit choice
+            AddWinnings( &playerMoney, bet ); //adds winnings to player money
+            endFlag = true;
+          }
+
+          else if ( GetHandValue( pHand ) > 21 )// player busts
+          {
+            std::cout<<"Your hand total: "<< GetHandValue(pHand);
+            std::cout<< "\n\nBust! Womp womp. Sorry pal.\nPress <A><enter> to continue or press <X><enter> to return to the main menu."<<std::endl;
+            ContinueRound( exitRound );
+            SubtractBet( &playerMoney, bet );//subtracts player bet from money
+            endFlag = true;
+          }
+
+        }
+        break;
+
+      case 'S': //player chooses to stick
+      case 's':
+
+        {
+          std::cout<< "\nHole Card is: ";
+          PrintCard( dHand[0] );
+
+          while ( GetHandValue( dHand ) < 17 )//dealer must hit if hand value is less than 17
+          {
+
+            dHand[dNextCard] = *nextCardInDeck; //the next card element in dealer hand array = value of nextCardInDeck pointer
+            nextCardInDeck++; //increments which card is read from the deck
+            std::cout<< "Dealer has drawn: ";
+            PrintCard(dHand[dNextCard]);//prints card from dealer hand array, element number nextCard
+
+
+            if ( dHand[dNextCard].m_rank == 0 && GetHandValue( dHand ) > 10 )// checks if dealer's drawn card is ace and 11 will cause dealer bust
+            {
+
+              dHand[dNextCard].m_value = 1; //assigns value of one to the drawn ace
+              
+
+            }
+
+            dNextCard++;
+
+          } 
+
+          
+           
+          if ( GetHandValue( dHand ) == 21 ) // if dealer has BlackJack
+          {
+            std::cout<<"Dealer hand total: "<< GetHandValue(dHand);
+            std::cout<< "\n\nSorry Partner! Looks like the House was lucky this time.\nPress <A><enter> to continue or press <X><enter> to return to the main menu."<<std::endl;
+            ContinueRound( exitRound );
+            SubtractBet(&playerMoney, bet); //subtracts bet amount from player's money
+            endFlag = true;
+          }
+
+          else if ( GetHandValue( dHand ) < 21 ) // if neither player has 21
+          {
+
+            if ( GetHandValue(pHand) > GetHandValue(dHand)) // if player wins
+            {
+              std::cout<<"\nDealer Hand total: "<< GetHandValue(dHand);
+              std::cout<< "\n\nYeehaw! Well won, Cowperson.\nPress <A><enter> to continue or press <X><enter> to return to the main menu."<<std::endl;
+              ContinueRound( exitRound );
+              AddWinnings(&playerMoney, bet);
+              endFlag = true;
+            }
+
+            else if ( GetHandValue( pHand ) == GetHandValue( dHand ) ) // if draw
+            {
+              std::cout<<"\nDealer Hand total: "<< GetHandValue(dHand);
+              std::cout<< "\n\nSO CLOSE! Unfortunately, draws go to the house. Maybe next time!\nPress <A><enter> to continue or press <X><enter> to return to the main menu."<<std::endl;
+              ContinueRound( exitRound );
+              SubtractBet(&playerMoney, bet);
+              endFlag = true;
+            }
+
+            else // if player loses
+            {
+              std::cout<<"\Dealer Hand total: "<< GetHandValue( dHand );
+              std::cout<< "\n\nThe House takes this round, friend!\nPress <A><enter> to continue or press <X><enter> to return to the main menu."<<std::endl;
+              ContinueRound( exitRound );
+              SubtractBet(&playerMoney, bet);
+              endFlag = true;
+            }
+          }//closes else if
+
+          else if  ( GetHandValue( dHand ) > 21 ) //if dealer busts
+          {
+            std::cout<<"\Dealer Hand total: "<< GetHandValue( dHand );
+            std::cout<< "\n\nYeehaw! Well won, Cowperson.\nPress <A><enter> to continue or press <X><enter> to return to the main menu."<<std::endl;
+            ContinueRound( exitRound );
+            AddWinnings( &playerMoney, bet );
+            endFlag = true;
+          }
+
+
+        }//closes case 'S'
+        break;
+
+      default:
+        break;
+      }
+
+      //nextCard++;//increments nextCard int
+    }
+
+
+
+    //if player has run out of money output end of game message, clear screen and recall menu function
+    if ( playerMoney <= 0 )
+    {
+      std::cout<< "Sorry partner, looks like your well's run dry. \nThanks for playing!"<<std::endl;
+      exitRound = true;
+      system("PAUSE");
+      system("CLS");
+      Menu();
+    }
+
+  }
+
+
+  system("PAUSE");
+}
+
+void PrintCard ( Card hand )
+{
+  //write rank
+  if (hand.m_rank == 0) std::cout<< "Ace of ";
+  if (hand.m_rank == 1) std::cout<< "Two of ";
+  if (hand.m_rank == 2) std::cout<< "Three of ";
+  if (hand.m_rank == 3) std::cout<< "Four of ";
+  if (hand.m_rank == 4) std::cout<< "Five of ";
+  if (hand.m_rank == 5) std::cout<< "Six of ";
+  if (hand.m_rank == 6) std::cout<< "Seven of ";
+  if (hand.m_rank == 7) std::cout<< "Eight of ";
+  if (hand.m_rank == 8) std::cout<< "Nine of ";
+  if (hand.m_rank == 9) std::cout<< "Ten of ";
+  if (hand.m_rank == 10) std::cout<< "Jack of ";
+  if (hand.m_rank == 11) std::cout<< "Queen of ";
+  if (hand.m_rank == 12) std::cout<< "King of ";
+
+  //write suit
+  if (hand.m_suit == 0) std::cout<< "Hearts"<<std::endl;
+  if (hand.m_suit == 1) std::cout<< "Diamonds"<<std::endl;
+  if (hand.m_suit == 2) std::cout<< "Spades"<<std::endl;
+  if (hand.m_suit == 3) std::cout<< "Clubs"<<std::endl;
+
+}
+
+//function that sums the cards in any given hand array
+int GetHandValue ( Card hand[] )
+{
+  int value = 0;
+
+
+  for (int i = 0; i < 12; i++)
+  {
+    value = value + hand[i].m_value;
+  }
+  return value;
+}
+
+//function to error check int inputs
+int GetInput ( void ) ///used to check errors in input values
+{ 
+  bool valid = false; ///boolean used for while loop
+  int input;
+
+  while (!valid)
+  {
+    if ( std::cin>>input ) ///checks if std::cin is the right type of input (in this case an int)
+    {
+      valid = true;	///if it is the right type, the loop will end and the function will return the variable input
+    }
+    else
+    {
+      std::cin.clear(); ///removes error flag
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n'); ///clears the invalid input stream
+      std::cout<<"\nInvalid input, please try again."<<std::endl;
+    }
+  }
+  return input;
+}
+
+//function to error check char inputs
+char GetCharInput ( void ) ///used to check errors in input values
+{ 
+  bool valid = false; ///boolean used for while loop
+  char input;
+
+  while (!valid)
+  {
+    if ( std::cin>>input ) ///checks if std::cin is the right type of input (in this case a char)
+    {
+      valid = true;	///if it is the right type, the loop will end and the function will return the variable input
+    }
+    else
+    {
+      std::cin.clear(); ///removes error flag
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n'); ///clears the invalid input stream
+      std::cout<<"\nInvalid input, please try again."<<std::endl;
+    }
+  }
+  return input;
+}
+
+//function to get player bet
+int GetBet ( int playerMoney )
+{
+  int bet;
+
+  std::cout<< "You have $"<< playerMoney <<"."<<std::endl; //displays playerMoney (amount of money the player has to use)
+  std::cout<< "Please enter the amount you would like to bet."<<std::endl; //requests input of bet amount
+  bet = GetInput(); //get bet amount
+
+  // if bet is larger than money, error
+  if ( bet > playerMoney )
+  {
+    std::cout<< "You can't bet more than you have! Sorry. Please re-enter bet."<<std::endl;
+    std::cout<< "You have "<< playerMoney <<"."<<std::endl;//displays playerMoney (amount of money the player has to use)
+    std::cout<< "Please enter the amount you would like to bet."<<std::endl; //requests input of bet amount
+    bet = GetInput(); //get bet amount
+
+  }
+  return bet;
+}
+
+//function to subtract bet from player money
+void SubtractBet( int *playerMoney, int bet )
+{
+  *playerMoney = *playerMoney - bet;
+}
+
+//function to add winnings to player money
+void AddWinnings( int *playerMoney, int bet )
+{
+  *playerMoney = *playerMoney + bet*1.5;
+}
+
+void Draw ( int *playerMoney, int bet )
+{
+  *playerMoney = *playerMoney;
+}
+
+//function to continue to next round or to exit game
+bool ContinueRound( bool exitRound )
+{
+  char roundChoice = GetCharInput();
+
+  if ( roundChoice == 'A' || roundChoice == 'a' ) //continue playing
+  {
+    exitRound = false;
+    system("CLS");
+  }
+
+  else if ( roundChoice == 'X' || roundChoice == 'x' ) //exit game
+  {
+    exitRound = true;
+    system("CLS");
+    Menu();
+  }
+
+  return exitRound;
+}
+
+
+
+
